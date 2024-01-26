@@ -1,10 +1,13 @@
 package main
 
 import (
+	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
+	"net/http"
 	"os"
+	"strconv"
 )
 
 type Restaurant struct {
@@ -30,32 +33,162 @@ func main() {
 		log.Fatal(db, err)
 	}
 
-	//newRestaurant := Restaurant{Name: "aaa", Addr: "aa1"}
-	//
-	//db.Create(&newRestaurant)
+	r := gin.Default() //create a server
 
-	//var myRestaurant Restaurant
+	r.GET("/ping", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
 
-	//myRestaurant.Name = ""
-	//if err = db.Where("id = ?", 2).First(&myRestaurant).Error; err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(myRestaurant)
+	// POST /restaurants
+	v1 := r.Group("/v1")
 
-	//if err = db.Where("id = ?", 2).Updates(&myRestaurant).Error; err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//fmt.Println(myRestaurant)
+	restaurants := v1.Group("/restaurants")
 
-	//if err = db.Table("restaurants").Where("id = ?", 1).Delete(nil).Error; err != nil {
-	//	log.Fatal(err)
-	//}
+	restaurants.POST("/", func(c *gin.Context) {
 
-	//newName := "aaa"
-	//dataUpdate := RestaurantUpdate{Name: &newName}
-	//if err = db.Where("id = ?", 2).Updates(&dataUpdate).Error; err != nil {
-	//	log.Fatal(err)
-	//}
+		var data Restaurant
+		err := c.ShouldBind(&data)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		db.Create(&data)
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Success",
+			"data":    data,
+		})
+	})
+
+	// GET /restaurants/:id
+	// get a restaurant by id
+	restaurants.GET("/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		var data Restaurant
+
+		if err = db.Where("id = ?", id).First(&data).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": data,
+		})
+
+	})
+
+	restaurants.GET("/", func(c *gin.Context) {
+
+		var data []Restaurant
+
+		type Paging struct {
+			Page  int `json:"page" form:"page"`
+			Limit int `json:"limit" form:"limit"`
+		}
+
+		var pagingData Paging
+
+		err := c.ShouldBind(&pagingData)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if pagingData.Page <= 0 {
+			pagingData.Page = 1
+		}
+
+		if pagingData.Limit <= 0 {
+			pagingData.Limit = 5
+		}
+
+		if err := db.Order("id desc").
+			Offset((pagingData.Page - 1) * pagingData.Limit).
+			Limit(pagingData.Limit).
+			Find(&data).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"data": data,
+		})
+
+	})
+
+	restaurants.PATCH("/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		var data RestaurantUpdate
+
+		err = c.ShouldBind(&data)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if err = db.Where("id = ?", id).Updates(&data).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"data": data,
+		})
+
+	})
+
+	restaurants.DELETE("/:id", func(c *gin.Context) {
+		id, err := strconv.Atoi(c.Param("id"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		if err = db.Table(Restaurant{}.TableName()).Where("id = ?", id).Delete(nil).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Delete success",
+		})
+	})
+
+	err = r.Run() //listen and serve
+
+	if err != nil {
+		log.Fatal(err)
+	}
 
 }
