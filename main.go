@@ -29,15 +29,9 @@ func main() {
 
 	appCtx := appctx.NewAppContext(db)
 
-	// POST /restaurants
 	v1 := r.Group("/v1")
 
 	restaurants := v1.Group("/restaurants")
-
-	// GET /restaurants/:id
-
-	// get a restaurant by id
-
 	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))
 	restaurants.DELETE("/:id", ginrestaurant.DeleteRestaurant(appCtx))
 	restaurants.GET("/:id", ginrestaurant.FindRestaurantByID(appCtx))
