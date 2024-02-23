@@ -11,7 +11,7 @@ type AppError struct {
 	StatusCode int    `json:"status_code"`
 	RootErr    error  `json:"-"`
 	Message    string `json:"message"`
-	Log        string `json:"-"`
+	Log        string `json:"log"`
 	Key        string `json:"error_key"`
 }
 
@@ -67,13 +67,13 @@ func ErrDb(err error) *AppError {
 	return NewFullErrorResponse(
 		http.StatusInternalServerError,
 		err,
-		"something went wrong with DB",
+		"Something went wrong with DB",
 		err.Error(),
 		"DB_ERROR")
 }
 
 func ErrInvalidRequest(err error) *AppError {
-	return NewErrorResponse(err, "invalid request", err.Error(), "INVALID_REQUEST")
+	return NewErrorResponse(err, "Invalid request", err.Error(), "INVALID_REQUEST")
 }
 
 func ErrInternal(err error) *AppError {
@@ -83,35 +83,35 @@ func ErrInternal(err error) *AppError {
 func ErrCannotListEntity(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
-		fmt.Sprintf("cannot list entity%s", strings.ToLower(entity)),
+		fmt.Sprintf("Cannot list %s", strings.ToLower(entity)),
 		fmt.Sprintf("CANNOT_LIST_%s", strings.ToUpper(entity)))
 }
 
 func ErrCannotDeleteEntity(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
-		fmt.Sprintf("cannot delete entity%s", strings.ToLower(entity)),
+		fmt.Sprintf("Cannot delete %s", strings.ToLower(entity)),
 		fmt.Sprintf("CANNOT_DELETE_%s", strings.ToUpper(entity)))
 }
 
 func ErrEntityDeleted(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
-		fmt.Sprintf("entity %s has been deleted", strings.ToLower(entity)),
+		fmt.Sprintf("Entity %s has been deleted", strings.ToLower(entity)),
 		fmt.Sprintf("ENTITY_DELETED_%s", strings.ToUpper(entity)))
 }
 
 func ErrEntityNotFound(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
-		fmt.Sprintf("entity %s not found", strings.ToLower(entity)),
+		fmt.Sprintf("Entity %s not found", strings.ToLower(entity)),
 		fmt.Sprintf("ENTITY_NOT_FOUND_%s", strings.ToUpper(entity)))
 }
 
 func ErrCannotCreateEntity(entity string, err error) *AppError {
 	return NewCustomError(
 		err,
-		fmt.Sprintf("cannot create entity%s", strings.ToLower(entity)),
+		fmt.Sprintf("Cannot create %s", strings.ToLower(entity)),
 		fmt.Sprintf("CANNOT_CREATE_%s", strings.ToUpper(entity)))
 }
 

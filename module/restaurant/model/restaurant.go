@@ -1,6 +1,14 @@
 package restaurantmodel
 
-import "food-delivery/common"
+import (
+	"errors"
+	"food-delivery/common"
+	"strings"
+)
+
+const (
+	EntityName = "restaurant"
+)
 
 // Restaurant is a model that represents a restaurant
 type Restaurant struct {
@@ -19,6 +27,15 @@ type RestaurantCreate struct {
 	Addr            string `json:"addr" gorm:"column:addr"`
 }
 
+func (data *RestaurantCreate) Validate() error {
+	data.Name = strings.TrimSpace(data.Name)
+
+	if data.Name == "" {
+		return ErrNameIsEmpty
+	}
+	return nil
+}
+
 // TableName is a function to change the table name
 func (RestaurantCreate) TableName() string { return Restaurant{}.TableName() }
 
@@ -30,3 +47,7 @@ type RestaurantUpdate struct {
 
 // TableName is a function to change the table name
 func (RestaurantUpdate) TableName() string { return Restaurant{}.TableName() }
+
+var (
+	ErrNameIsEmpty = errors.New("name can not be empty")
+)

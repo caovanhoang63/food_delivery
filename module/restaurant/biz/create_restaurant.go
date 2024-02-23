@@ -2,7 +2,7 @@ package restaurantbiz
 
 import (
 	"context"
-	"errors"
+	"food-delivery/common"
 	restaurantmodel "food-delivery/module/restaurant/model"
 )
 
@@ -19,13 +19,13 @@ func NewCreateRestaurantBiz(store CreateRestaurantStore) *createRestaurantStoreB
 }
 
 func (biz *createRestaurantStoreBiz) Create(context context.Context, data *restaurantmodel.RestaurantCreate) error {
-	if data.Name == "" {
-		return errors.New("name cannot be empty")
+	if err := data.Validate(); err != nil {
+		return common.ErrInvalidRequest(err)
 	}
 
 	err := biz.store.Create(context, data)
 	if err != nil {
-		return err
+		return common.ErrCannotCreateEntity(restaurantmodel.EntityName, err)
 	}
 
 	return nil
