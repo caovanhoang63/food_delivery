@@ -2,6 +2,7 @@ package restaurantstorage
 
 import (
 	"context"
+	"food-delivery/common"
 	restaurantmodel "food-delivery/module/restaurant/model"
 )
 
@@ -15,7 +16,7 @@ func (s *sqlStore) Delete(
 		Where("id = ?", id).
 		Updates(map[string]interface{}{"status": 0}).
 		Error; err != nil {
-		return err
+		return common.ErrDb(err)
 	}
 	return nil
 }

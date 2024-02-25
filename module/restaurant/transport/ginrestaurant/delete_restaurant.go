@@ -15,10 +15,7 @@ func DeleteRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 
 		id, err := strconv.Atoi(c.Param("id"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		db := appCtx.GetMainDbConnection()
@@ -26,10 +23,7 @@ func DeleteRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 		biz := restaurantbiz.NewDeleteRestaurantStore(store)
 
 		if err = biz.Delete(c.Request.Context(), id); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(err)
 		}
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))

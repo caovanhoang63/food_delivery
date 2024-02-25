@@ -49,7 +49,11 @@ func NewCustomError(root error, msg string, key string) *AppError {
 	if root != nil {
 		return NewErrorResponse(root, msg, root.Error(), key)
 	}
-	return NewErrorResponse(errors.New(msg), msg, msg, key)
+	return NewErrorResponse(
+		errors.New(msg),
+		msg,
+		msg,
+		key)
 }
 
 func (e *AppError) RootError() error {
@@ -121,3 +125,5 @@ func ErrNoPermission(err error) *AppError {
 		"You have no permission",
 		"NO_PERMISSION")
 }
+
+var RecordNotFound = errors.New("record not found")
