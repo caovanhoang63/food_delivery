@@ -26,10 +26,25 @@ func (s *sqlStore) ListRestaurantWithCondition(
 		return nil, err
 	}
 
-	db = db.Offset(paging.GetOffSet())
+	// paging
+	if v := paging.FakeCursor; v != "" {
+		uid, err := common.FromBase58(v)
+		if err != nil {
+			return nil, common.ErrDb(err)
+		}
+		db = db.Where("id  < ? ", uid.GetLocalID())
+	} else {
+		db = db.Offset(paging.GetOffSet())
+	}
 
-	if err := db.Limit(paging.Limit).Find(&result).Error; err != nil {
+	if err := db.Limit(paging.Limit).Find(&result).Order("id desc").Error; err != nil {
 		return nil, err
+	}
+
+	if len(result) > 0 {
+		last := result[len(result)-1]
+		last.Mask(false)
+		paging.NextCursor = last.FakeId.String()
 	}
 	return result, nil
 }
