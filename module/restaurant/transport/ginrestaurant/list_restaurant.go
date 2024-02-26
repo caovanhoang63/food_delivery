@@ -19,20 +19,14 @@ func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 
 		err := c.ShouldBind(&paging)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		paging.FullFill()
 
 		err = c.ShouldBind(&filter)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(common.ErrInvalidRequest(err))
 		}
 
 		db := appCtx.GetMainDbConnection()
@@ -43,10 +37,11 @@ func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 
 		data, err = biz.List(c.Request.Context(), &filter, &paging)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
-			})
-			return
+			panic(err)
+		}
+
+		for i := range data {
+			data[i].Mask(false)
 		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(data, paging, filter))

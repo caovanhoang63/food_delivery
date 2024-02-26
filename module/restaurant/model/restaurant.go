@@ -20,11 +20,21 @@ type Restaurant struct {
 // TableName is a function to change the table name
 func (Restaurant) TableName() string { return "restaurants" }
 
+func (data *Restaurant) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
+
+}
+
 // RestaurantCreate is a model that client use to create a new restaurant
 type RestaurantCreate struct {
 	common.SqlModel `json:",inline"`
 	Name            string `json:"name" gorm:"column:name"`
 	Addr            string `json:"addr" gorm:"column:addr"`
+}
+
+func (data *RestaurantCreate) Mask(isAdminOrOwner bool) {
+	data.GenUID(common.DbTypeRestaurant)
+
 }
 
 func (data *RestaurantCreate) Validate() error {
