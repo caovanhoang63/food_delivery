@@ -2,17 +2,25 @@ package main
 
 import (
 	"food-delivery/component/appctx"
+	"food-delivery/component/uploadprovider"
 	"food-delivery/middleware"
 	"food-delivery/module/restaurant/transport/ginrestaurant"
+	"food-delivery/module/upload/transport/ginupload"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
+	RegisterImageFormat()
+
 	//dsn aka connection string
 	dsn := os.Getenv("MYSQL_CONN_STRING")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -21,7 +29,22 @@ func main() {
 	}
 
 	db = db.Debug()
-	appCtx := appctx.NewAppContext(db)
+
+	s3BucketName := os.Getenv("S3_BUCKET_NAME")
+	s3Region := os.Getenv("S3_REGION")
+	s3ApiKey := os.Getenv("S3_API_KEY")
+	s3Secret := os.Getenv("S3_SECRET")
+	s3Domain := os.Getenv("S3_DOMAIN")
+
+	s3Provider := uploadprovider.NewS3Provider(
+		s3BucketName,
+		s3Region,
+		s3ApiKey,
+		s3Secret,
+		s3Domain,
+	)
+
+	appCtx := appctx.NewAppContext(db, s3Provider)
 
 	r := gin.Default() //create a server
 
@@ -33,7 +56,11 @@ func main() {
 		})
 	})
 
+	r.Static("/static", "./static")
+
 	v1 := r.Group("/v1")
+
+	v1.POST("/upload", ginupload.UploadImage(appCtx))
 
 	restaurants := v1.Group("/restaurants")
 	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))
@@ -48,4 +75,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+}
+
+// RegisterImageFormat registers the standard library's image formats.
+func RegisterImageFormat() {
+	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
+	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
+	image.RegisterFormat("gif", "gif", gif.Decode, gif.DecodeConfig)
 }
