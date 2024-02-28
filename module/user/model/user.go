@@ -3,6 +3,7 @@ package usermodel
 import (
 	"errors"
 	"food-delivery/common"
+	"food-delivery/component/tokenprovider"
 )
 
 const EntityName = "User"
@@ -42,7 +43,7 @@ func (u *User) Mask(isAdmin bool) {
 type UserCreate struct {
 	common.SqlModel `json:",inline"`
 	Email           string        `json:"email" gorm:"column:email;"`
-	Password        string        `json:"-" gorm:"column:password;"`
+	Password        string        `json:"password" gorm:"column:password;"`
 	Salt            string        `json:"-" gorm:"column:salt;"`
 	LastName        string        `json:"last_name" gorm:"column:last_name;"`
 	Firstname       string        `json:"first_name" gorm:"column:first_name;"`
@@ -65,6 +66,18 @@ type UserLogin struct {
 
 func (UserLogin) TableName() string {
 	return User{}.TableName()
+}
+
+type Account struct {
+	AccessToken  *tokenprovider.Token `json:"access_token"`
+	RefreshToken *tokenprovider.Token `json:"refresh_token""`
+}
+
+func NewAccount(at, rt *tokenprovider.Token) *Account {
+	return &Account{
+		AccessToken:  at,
+		RefreshToken: rt,
+	}
 }
 
 var (
