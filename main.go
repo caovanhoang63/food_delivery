@@ -6,6 +6,7 @@ import (
 	"food-delivery/middleware"
 	"food-delivery/module/restaurant/transport/ginrestaurant"
 	"food-delivery/module/upload/transport/ginupload"
+	"food-delivery/module/user/transport/ginuser"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -61,6 +62,7 @@ func main() {
 	v1 := r.Group("/v1")
 
 	v1.POST("/upload", ginupload.UploadImage(appCtx))
+	v1.POST("/register", ginuser.RegisterUser(appCtx))
 
 	restaurants := v1.Group("/restaurants")
 	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))
