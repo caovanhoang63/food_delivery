@@ -36,6 +36,7 @@ func main() {
 	s3ApiKey := os.Getenv("S3_API_KEY")
 	s3Secret := os.Getenv("S3_SECRET")
 	s3Domain := os.Getenv("S3_DOMAIN")
+	systemSecretKey := os.Getenv("SYSTEM_SECRET_KEY")
 
 	s3Provider := uploadprovider.NewS3Provider(
 		s3BucketName,
@@ -45,7 +46,7 @@ func main() {
 		s3Domain,
 	)
 
-	appCtx := appctx.NewAppContext(db, s3Provider)
+	appCtx := appctx.NewAppContext(db, s3Provider, systemSecretKey)
 
 	r := gin.Default() //create a server
 
@@ -63,6 +64,7 @@ func main() {
 
 	v1.POST("/upload", ginupload.UploadImage(appCtx))
 	v1.POST("/register", ginuser.RegisterUser(appCtx))
+	v1.POST("/authenticate", ginuser.UserLogin(appCtx))
 
 	restaurants := v1.Group("/restaurants")
 	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))
