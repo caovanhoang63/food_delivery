@@ -65,6 +65,7 @@ func main() {
 	v1.POST("/upload", ginupload.UploadImage(appCtx))
 	v1.POST("/register", ginuser.RegisterUser(appCtx))
 	v1.POST("/authenticate", ginuser.UserLogin(appCtx))
+	v1.GET("/profile", middleware.RequireAuth(appCtx), ginuser.GetProfile(appCtx))
 
 	restaurants := v1.Group("/restaurants")
 	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))

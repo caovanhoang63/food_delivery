@@ -8,6 +8,14 @@ const (
 	DbTypeUser       = 2
 )
 
+const CurrentUser = "user"
+
+type Requester interface {
+	GetUserId() int
+	GetEmail() string
+	GetRole() string
+}
+
 // AppRecover is an intelligent function to recover from panic
 func AppRecover() {
 	if err := recover(); err != nil {
