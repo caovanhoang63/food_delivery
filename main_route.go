@@ -4,6 +4,7 @@ import (
 	"food-delivery/component/appctx"
 	"food-delivery/middleware"
 	"food-delivery/module/restaurant/transport/ginrestaurant"
+	"food-delivery/module/restaurantlike/transport/ginrestaurantlike"
 	"food-delivery/module/upload/transport/ginupload"
 	"food-delivery/module/user/transport/ginuser"
 	"github.com/gin-gonic/gin"
@@ -21,4 +22,8 @@ func setupRoute(appCtx appctx.AppContext, v1 *gin.RouterGroup) {
 	restaurants.GET("/:id", ginrestaurant.FindRestaurantByID(appCtx))
 	restaurants.GET("/", ginrestaurant.ListRestaurantWithCondition(appCtx))
 	restaurants.PATCH("/:id", ginrestaurant.UpdateRestaurant(appCtx))
+
+	restaurants.POST("/:id/like", ginrestaurantlike.UserLikeRestaurant(appCtx))
+	restaurants.DELETE("/:id/dislike", ginrestaurantlike.UserDislikeRestaurant(appCtx))
+	restaurants.GET("/:id/liked-users", ginrestaurantlike.ListUserLikeRestaurant(appCtx))
 }

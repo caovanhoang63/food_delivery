@@ -30,10 +30,10 @@ func ErrCannotLikeRestaurant(err error) *common.AppError {
 	)
 }
 
-func ErrCannotUnlikeRestaurant(err error) *common.AppError {
+func ErrCannotDislikeRestaurant(err error) *common.AppError {
 	return common.NewCustomError(
 		err,
-		"cannot unlike restaurant",
-		"Err_Cannot_Unlike_Restaurant",
+		"cannot dislike restaurant",
+		"Err_Cannot_Dislike_Restaurant",
 	)
 }
