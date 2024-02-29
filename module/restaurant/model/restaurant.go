@@ -19,6 +19,7 @@ type Restaurant struct {
 	Cover           *common.Images     `json:"cover" gorm:"column:cover"`
 	OwnerID         int                `json:"-"`
 	User            *common.SimpleUser `json:"user" gorm:"foreignKey:OwnerID;preload:false"`
+	LikeCount       int                `json:"like_count" gorm:"-"`
 }
 
 // TableName is a function to change the table name

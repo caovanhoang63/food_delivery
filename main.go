@@ -48,14 +48,14 @@ func main() {
 		})
 	})
 
+	//setup route
 	v1 := r.Group("/v1")
 	setupRoute(appCtx, v1)
 	setupAdminRoute(appCtx, v1)
 
-	err = r.Run() //listen and serve
-
+	//listen and serve
+	err = r.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
-
 }

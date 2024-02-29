@@ -5,7 +5,9 @@ import (
 	"food-delivery/component/appctx"
 	restaurantbiz "food-delivery/module/restaurant/biz"
 	restaurantmodel "food-delivery/module/restaurant/model"
+	restaurantrepository "food-delivery/module/restaurant/repository"
 	restaurantstorage "food-delivery/module/restaurant/storage"
+	restaurantlikestorage "food-delivery/module/restaurantlike/storage"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -30,7 +32,9 @@ func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 
 		db := appCtx.GetMainDbConnection()
 		store := restaurantstorage.NewSqlStore(db)
-		biz := restaurantbiz.NewListRestaurantBiz(store)
+		likeStore := restaurantlikestorage.NewSQLStore(db)
+		repo := restaurantrepository.NewListRestaurantRepo(store, likeStore)
+		biz := restaurantbiz.NewListRestaurantBiz(repo)
 
 		data, err = biz.List(c.Request.Context(), &filter, &paging)
 		if err != nil {
