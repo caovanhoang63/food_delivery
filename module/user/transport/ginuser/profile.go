@@ -9,7 +9,7 @@ import (
 
 func GetProfile(appCtx appctx.AppContext) func(*gin.Context) {
 	return func(c *gin.Context) {
-		data := c.MustGet(common.CurrentUser)
+		data := c.MustGet(common.CurrentUser).(common.Requester)
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
 	}

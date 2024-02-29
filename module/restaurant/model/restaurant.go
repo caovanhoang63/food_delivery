@@ -34,6 +34,7 @@ type RestaurantCreate struct {
 	Addr            string         `json:"addr" gorm:"column:addr"`
 	Logo            *common.Image  `json:"logo" gorm:"column:logo"`
 	Cover           *common.Images `json:"cover" gorm:"column:cover"`
+	OwnerId         int            `json:"-" gorm:"column:owner_id"`
 }
 
 func (data *RestaurantCreate) Mask(isAdminOrOwner bool) {

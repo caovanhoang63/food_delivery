@@ -12,8 +12,8 @@ import (
 
 func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var data []restaurantmodel.Restaurant
 
+		var data []restaurantmodel.Restaurant
 		var paging common.Paging
 		var filter restaurantmodel.Filter
 
@@ -23,16 +23,13 @@ func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 		}
 
 		paging.FullFill()
-
 		err = c.ShouldBind(&filter)
 		if err != nil {
 			panic(common.ErrInvalidRequest(err))
 		}
 
 		db := appCtx.GetMainDbConnection()
-
 		store := restaurantstorage.NewSqlStore(db)
-
 		biz := restaurantbiz.NewListRestaurantBiz(store)
 
 		data, err = biz.List(c.Request.Context(), &filter, &paging)
