@@ -3,6 +3,7 @@ package restaurantmodel
 import (
 	"errors"
 	"food-delivery/common"
+	usermodel "food-delivery/module/user/model"
 	"strings"
 )
 
@@ -13,10 +14,12 @@ const (
 // Restaurant is a model that represents a restaurant
 type Restaurant struct {
 	common.SqlModel `json:",inline"`
-	Name            string         `json:"name" gorm:"column:name"`
-	Addr            string         `json:"addr" gorm:"column:addr"`
-	Logo            *common.Image  `json:"logo" gorm:"column:logo"`
-	Cover           *common.Images `json:"cover" gorm:"column:cover"`
+	Name            string          `json:"name" gorm:"column:name"`
+	Addr            string          `json:"addr" gorm:"column:addr"`
+	Logo            *common.Image   `json:"logo" gorm:"column:logo"`
+	Cover           *common.Images  `json:"cover" gorm:"column:cover"`
+	OwnerID         int             `json:"-"`
+	User            *usermodel.User `json:"user" gorm:"foreignKey:OwnerID;preload:false"`
 }
 
 // TableName is a function to change the table name

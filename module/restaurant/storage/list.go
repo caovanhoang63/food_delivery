@@ -26,6 +26,10 @@ func (s *sqlStore) ListRestaurantWithCondition(
 		return nil, err
 	}
 
+	for _, item := range moreKeys {
+		db = db.Preload(item)
+	}
+
 	// paging
 	if v := paging.FakeCursor; v != "" {
 		uid, err := common.FromBase58(v)
@@ -46,5 +50,6 @@ func (s *sqlStore) ListRestaurantWithCondition(
 		last.Mask(false)
 		paging.NextCursor = last.FakeId.String()
 	}
+
 	return result, nil
 }
