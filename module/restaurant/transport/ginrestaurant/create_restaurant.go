@@ -13,7 +13,7 @@ import (
 func CreateRestaurant(appCtx appctx.AppContext) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var data restaurantmodel.RestaurantCreate
-		var requester = c.MustGet(common.CurrentUser).(common.Requester)
+		requester := c.MustGet(common.CurrentUser).(common.Requester)
 
 		err := c.ShouldBind(&data)
 		if err != nil {

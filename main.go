@@ -4,16 +4,9 @@ import (
 	"food-delivery/component/appctx"
 	"food-delivery/component/uploadprovider"
 	"food-delivery/middleware"
-	"food-delivery/module/restaurant/transport/ginrestaurant"
-	"food-delivery/module/upload/transport/ginupload"
-	"food-delivery/module/user/transport/ginuser"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"image"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"log"
 	"net/http"
 	"os"
@@ -21,14 +14,12 @@ import (
 
 func main() {
 	RegisterImageFormat()
-
 	//dsn aka connection string
 	dsn := os.Getenv("MYSQL_CONN_STRING")
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal(db, err)
 	}
-
 	db = db.Debug()
 
 	s3BucketName := os.Getenv("S3_BUCKET_NAME")
@@ -51,28 +42,15 @@ func main() {
 	r := gin.Default() //create a server
 
 	r.Use(middleware.Recover(appCtx))
-
 	r.GET("/ping", func(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{
 			"message": "pong",
 		})
 	})
 
-	r.Static("/static", "./static")
-
 	v1 := r.Group("/v1")
-
-	v1.POST("/upload", ginupload.UploadImage(appCtx))
-	v1.POST("/register", ginuser.RegisterUser(appCtx))
-	v1.POST("/authenticate", ginuser.UserLogin(appCtx))
-	v1.GET("/profile", middleware.RequireAuth(appCtx), ginuser.GetProfile(appCtx))
-
-	restaurants := v1.Group("/restaurants", middleware.RequireAuth(appCtx))
-	restaurants.POST("/", ginrestaurant.CreateRestaurant(appCtx))
-	restaurants.DELETE("/:id", ginrestaurant.DeleteRestaurant(appCtx))
-	restaurants.GET("/:id", ginrestaurant.FindRestaurantByID(appCtx))
-	restaurants.GET("/", ginrestaurant.ListRestaurantWithCondition(appCtx))
-	restaurants.PATCH("/:id", ginrestaurant.UpdateRestaurant(appCtx))
+	setupRoute(appCtx, v1)
+	setupAdminRoute(appCtx, v1)
 
 	err = r.Run() //listen and serve
 
@@ -80,11 +58,4 @@ func main() {
 		log.Fatal(err)
 	}
 
-}
-
-// RegisterImageFormat registers the standard library's image formats.
-func RegisterImageFormat() {
-	image.RegisterFormat("jpeg", "jpeg", jpeg.Decode, jpeg.DecodeConfig)
-	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
-	image.RegisterFormat("gif", "gif", gif.Decode, gif.DecodeConfig)
 }

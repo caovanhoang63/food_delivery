@@ -37,9 +37,8 @@ func ListRestaurantWithCondition(appCtx appctx.AppContext) gin.HandlerFunc {
 			panic(err)
 		}
 
-		for _, restaurant := range data {
-			restaurant.Mask(false)
-			restaurant.User.Mask(false)
+		for i := range data {
+			data[i].Mask(false)
 		}
 
 		c.JSON(http.StatusOK, common.NewSuccessResponse(data, paging, filter))

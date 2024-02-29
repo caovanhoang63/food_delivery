@@ -3,7 +3,6 @@ package restaurantmodel
 import (
 	"errors"
 	"food-delivery/common"
-	usermodel "food-delivery/module/user/model"
 	"strings"
 )
 
@@ -14,12 +13,12 @@ const (
 // Restaurant is a model that represents a restaurant
 type Restaurant struct {
 	common.SqlModel `json:",inline"`
-	Name            string          `json:"name" gorm:"column:name"`
-	Addr            string          `json:"addr" gorm:"column:addr"`
-	Logo            *common.Image   `json:"logo" gorm:"column:logo"`
-	Cover           *common.Images  `json:"cover" gorm:"column:cover"`
-	OwnerID         int             `json:"-"`
-	User            *usermodel.User `json:"user" gorm:"foreignKey:OwnerID;preload:false"`
+	Name            string             `json:"name" gorm:"column:name"`
+	Addr            string             `json:"addr" gorm:"column:addr"`
+	Logo            *common.Image      `json:"logo" gorm:"column:logo"`
+	Cover           *common.Images     `json:"cover" gorm:"column:cover"`
+	OwnerID         int                `json:"-"`
+	User            *common.SimpleUser `json:"user" gorm:"foreignKey:OwnerID;preload:false"`
 }
 
 // TableName is a function to change the table name
@@ -27,7 +26,9 @@ func (Restaurant) TableName() string { return "restaurants" }
 
 func (data *Restaurant) Mask(isAdminOrOwner bool) {
 	data.GenUID(common.DbTypeRestaurant)
-
+	if data.User != nil {
+		data.User.Mask(isAdminOrOwner)
+	}
 }
 
 // RestaurantCreate is a model that client use to create a new restaurant
