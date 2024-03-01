@@ -3,6 +3,7 @@ package main
 import (
 	"food-delivery/component/appctx"
 	"food-delivery/middleware"
+	"food-delivery/module/category/transport/gincategory"
 	"food-delivery/module/restaurant/transport/ginrestaurant"
 	"food-delivery/module/restaurantlike/transport/ginrestaurantlike"
 	"food-delivery/module/upload/transport/ginupload"
@@ -26,4 +27,9 @@ func setupRoute(appCtx appctx.AppContext, v1 *gin.RouterGroup) {
 	restaurants.POST("/:id/like", ginrestaurantlike.UserLikeRestaurant(appCtx))
 	restaurants.DELETE("/:id/dislike", ginrestaurantlike.UserDislikeRestaurant(appCtx))
 	restaurants.GET("/:id/liked-users", ginrestaurantlike.ListUserLikeRestaurant(appCtx))
+
+	categories := v1.Group("/categories", middleware.RequireAuth(appCtx))
+
+	categories.POST("/", middleware.RoleRequired(appCtx, "admin"), gincategory.CreateCategory(appCtx))
+
 }

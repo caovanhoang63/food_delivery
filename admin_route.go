@@ -12,5 +12,6 @@ func setupAdminRoute(appCtx appctx.AppContext, v1 *gin.RouterGroup) {
 	admin := v1.Group("/admin", middleware.RequireAuth(appCtx), middleware.RoleRequired(appCtx, "admin"))
 	{
 		admin.GET("/profile", ginuser.GetProfile(appCtx))
+
 	}
 }

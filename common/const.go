@@ -6,6 +6,8 @@ import "log"
 const (
 	DbTypeRestaurant = 1
 	DbTypeUser       = 2
+	DbTypeFood       = 3
+	DbTypeCategory   = 4
 )
 
 const CurrentUser = "user"
