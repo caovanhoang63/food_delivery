@@ -14,6 +14,7 @@ type Food struct {
 	Price           float32        `json:"price" gorm:"column:price"`
 	Images          *common.Images `json:"Images" gorm:"column:images"`
 	RestaurantId    int
+	CategoryId      int
 	Restaurant      *restaurantmodel.Restaurant `json:"restaurant" gorm:"Preload:false;"`
 }
 
@@ -32,4 +33,5 @@ type FoodCreate struct {
 	Price           float32        `json:"price" gorm:"column:price"`
 	Images          *common.Images `json:"Images" gorm:"column:images"`
 	RestaurantId    int
+	CategoryId      int
 }

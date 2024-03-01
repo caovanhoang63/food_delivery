@@ -33,5 +33,6 @@ func setupRoute(appCtx appctx.AppContext, v1 *gin.RouterGroup) {
 	categories.POST("/", middleware.RoleRequired(appCtx, "admin"), gincategory.CreateCategory(appCtx))
 	categories.DELETE("/:id", middleware.RoleRequired(appCtx, "admin"), gincategory.DeleteCategory(appCtx))
 	categories.GET("/:id", gincategory.FindCategoryById(appCtx))
+	categories.PATCH("/:id", gincategory.UpdateCategory(appCtx))
 	categories.GET("/", gincategory.ListCategory(appCtx))
 }
