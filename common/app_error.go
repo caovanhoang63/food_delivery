@@ -126,4 +126,11 @@ func ErrNoPermission(err error) *AppError {
 		"NO_PERMISSION")
 }
 
+func ErrCannotUpdateEntity(entity string, err error) *AppError {
+	return NewCustomError(
+		err,
+		fmt.Sprintf("Cannot update %s", strings.ToLower(entity)),
+		fmt.Sprintf("CANNOT_UPDATE_%s", strings.ToUpper(entity)))
+}
+
 var RecordNotFound = errors.New("record not found")
