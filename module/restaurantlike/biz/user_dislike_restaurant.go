@@ -4,6 +4,7 @@ import (
 	"context"
 	"food-delivery/common"
 	restaurantlikemodel "food-delivery/module/restaurantlike/model"
+	"food-delivery/pubsub"
 	"log"
 )
 
@@ -16,12 +17,13 @@ type DecreaseLikeRestaurantStore interface {
 }
 
 type dislikeRestaurantBiz struct {
-	store    DislikeRestaurantStore
-	decStore DecreaseLikeRestaurantStore
+	store DislikeRestaurantStore
+	//decStore DecreaseLikeRestaurantStore
+	ps pubsub.Pubsub
 }
 
-func NewDislikeRestaurantBiz(store DislikeRestaurantStore, decStore DecreaseLikeRestaurantStore) *dislikeRestaurantBiz {
-	return &dislikeRestaurantBiz{store: store, decStore: decStore}
+func NewDislikeRestaurantBiz(store DislikeRestaurantStore, ps pubsub.Pubsub) *dislikeRestaurantBiz {
+	return &dislikeRestaurantBiz{store: store, ps: ps}
 }
 
 func (biz *dislikeRestaurantBiz) UserDislikeRestaurant(ctx context.Context, UserId, RestaurantId int) error {
@@ -29,12 +31,10 @@ func (biz *dislikeRestaurantBiz) UserDislikeRestaurant(ctx context.Context, User
 		return restaurantlikemodel.ErrCannotDislikeRestaurant(err)
 	}
 
-	go func() {
-		defer common.AppRecover()
-		if err := biz.decStore.DecreaseLikeCount(ctx, RestaurantId); err != nil {
-			log.Println(err)
-		}
-	}()
+	if err := biz.ps.Publish(ctx, common.TopicDecreaseLikeCountWhenUserDislikeRestaurant,
+		pubsub.NewMessage(&restaurantlikemodel.Like{RestaurantId: RestaurantId})); err != nil {
+		log.Println("Err: ", err)
+	}
 
 	return nil
 }

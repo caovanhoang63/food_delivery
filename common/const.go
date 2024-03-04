@@ -24,3 +24,8 @@ func AppRecover() {
 		log.Println("Recovery error:", err)
 	}
 }
+
+const (
+	TopicIncreaseLikeCountWhenUserLikeRestaurant    = "TopicIncreaseLikeCountWhenUserLikeRestaurant"
+	TopicDecreaseLikeCountWhenUserDislikeRestaurant = "TopicDecreaseLikeCountWhenUserDislikeRestaurant"
+)

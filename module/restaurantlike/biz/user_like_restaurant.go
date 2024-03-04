@@ -4,6 +4,7 @@ import (
 	"context"
 	"food-delivery/common"
 	restaurantlikemodel "food-delivery/module/restaurantlike/model"
+	"food-delivery/pubsub"
 	"log"
 )
 
@@ -16,12 +17,13 @@ type IncLikeCountRestaurantStore interface {
 }
 
 type likeRestaurantBiz struct {
-	store    LikeRestaurantStore
-	incStore IncLikeCountRestaurantStore
+	store LikeRestaurantStore
+	//incStore IncLikeCountRestaurantStore
+	ps pubsub.Pubsub
 }
 
-func NewLikeRestaurantBiz(store LikeRestaurantStore, incStore IncLikeCountRestaurantStore) *likeRestaurantBiz {
-	return &likeRestaurantBiz{store: store, incStore: incStore}
+func NewLikeRestaurantBiz(store LikeRestaurantStore, ps pubsub.Pubsub) *likeRestaurantBiz {
+	return &likeRestaurantBiz{store: store, ps: ps}
 }
 
 func (biz *likeRestaurantBiz) LikeRestaurant(
@@ -32,12 +34,9 @@ func (biz *likeRestaurantBiz) LikeRestaurant(
 		return restaurantlikemodel.ErrCannotLikeRestaurant(err)
 	}
 
-	go func() {
-		defer common.AppRecover()
-		if err := biz.incStore.IncreaseLikeCount(ctx, data.RestaurantId); err != nil {
-			log.Println(err)
-		}
-	}()
+	if err := biz.ps.Publish(ctx, common.TopicIncreaseLikeCountWhenUserLikeRestaurant, pubsub.NewMessage(data)); err != nil {
+		log.Println("Err:", err)
+	}
 
 	return nil
 }

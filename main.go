@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"food-delivery/component/appctx"
 	"food-delivery/component/uploadprovider"
 	"food-delivery/middleware"
+	"food-delivery/pubsub/pblocal"
+	"food-delivery/subcriber"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -36,10 +39,12 @@ func main() {
 		s3Secret,
 		s3Domain,
 	)
+	ps := pblocal.NewPubSub()
 
-	appCtx := appctx.NewAppContext(db, s3Provider, systemSecretKey)
+	appCtx := appctx.NewAppContext(db, s3Provider, systemSecretKey, ps)
 
 	r := gin.Default() //create a server
+	subcriber.SetUpPubSubSubcriber(appCtx, context.Background())
 
 	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(context *gin.Context) {
