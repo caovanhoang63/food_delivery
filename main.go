@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"food-delivery/component/appctx"
 	"food-delivery/component/uploadprovider"
 	"food-delivery/middleware"
@@ -44,7 +43,10 @@ func main() {
 	appCtx := appctx.NewAppContext(db, s3Provider, systemSecretKey, ps)
 
 	r := gin.Default() //create a server
-	subcriber.SetUpPubSubSubcriber(appCtx, context.Background())
+	engine := subcriber.NewEngine(appCtx)
+	if err := engine.Start(); err != nil {
+		log.Println("Err:", err)
+	}
 
 	r.Use(middleware.Recover(appCtx))
 	r.GET("/ping", func(context *gin.Context) {

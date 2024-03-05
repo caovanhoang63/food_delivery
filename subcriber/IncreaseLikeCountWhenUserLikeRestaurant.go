@@ -2,28 +2,22 @@ package subcriber
 
 import (
 	"context"
-	"food-delivery/common"
 	"food-delivery/component/appctx"
 	restaurantstorage "food-delivery/module/restaurant/storage"
-	"log"
+	"food-delivery/pubsub"
 )
 
 type HasRestaurantId interface {
 	GetRestaurantId() int
 }
 
-func IncreaseLikeCountWhenUserLikeRestaurant(appCtx appctx.AppContext, ctx context.Context) {
-	c, _ := appCtx.GetPubSub().Subscribe(ctx, common.TopicIncreaseLikeCountWhenUserLikeRestaurant)
-
-	go func() {
-		common.AppRecover()
-		for {
-			msg := <-c
-			id := msg.Data().(HasRestaurantId).GetRestaurantId()
-			db := appCtx.GetMainDbConnection()
-			if err := restaurantstorage.NewSqlStore(db).IncreaseLikeCount(ctx, id); err != nil {
-				log.Println("err:", err)
-			}
-		}
-	}()
+func IncreaseLikeCountWhenUserLikeRestaurant(appCtx appctx.AppContext, ctx context.Context) consumerJob {
+	return consumerJob{
+		Title: "Increase like count when user likes restaurant",
+		Handler: func(ctx context.Context, message *pubsub.Message) error {
+			store := restaurantstorage.NewSqlStore(appCtx.GetMainDbConnection())
+			likeData := message.Data().(HasRestaurantId)
+			return store.IncreaseLikeCount(ctx, likeData.GetRestaurantId())
+		},
+	}
 }
