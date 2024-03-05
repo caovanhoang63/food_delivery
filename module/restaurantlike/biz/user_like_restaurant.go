@@ -34,7 +34,8 @@ func (biz *likeRestaurantBiz) LikeRestaurant(
 		return restaurantlikemodel.ErrCannotLikeRestaurant(err)
 	}
 
-	if err := biz.ps.Publish(ctx, common.TopicIncreaseLikeCountWhenUserLikeRestaurant, pubsub.NewMessage(data)); err != nil {
+	if err := biz.ps.Publish(ctx, common.TopicIncreaseLikeCountWhenUserLikeRestaurant,
+		pubsub.NewMessage(data)); err != nil {
 		log.Println("Err:", err)
 	}
 
